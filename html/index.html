@@ -1,0 +1,96 @@
+<style>
+    .success{
+        color: green;
+    }
+
+    .error{
+        color: darkred;
+    }
+</style>
+<h2>PhoneManager - DEBUG-CLIENT</h2>
+<input type="text" value="00:09:52:08:5B:E2" id="macAddress"> <input type="text" value="10.1.1.55" id="ipAddress"> <button onclick="connect()">Verbinden</button>
+<hr>
+<p id="connectionState" class="error">Nicht verbunden</p>
+<hr>
+<input type="number" id="dialNumber" placeholder="Telefonnummer"> <button id="dialButton" disabled onclick="dialNumber(document.getElementById('dialNumber'))">Wählen</button>
+<hr>
+
+<div id="callData"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var socket = io();
+
+    var mac = "";
+
+    function connect(){
+        if(document.getElementById('macAddress').value && document.getElementById('ipAddress')){
+            socket.emit('joinRoom', {'mac': document.getElementById('macAddress').value, 'ip': document.getElementById('ipAddress').value});
+            document.getElementById('connectionState').classList.remove('error');
+            document.getElementById('connectionState').classList.add('success');
+            document.getElementById('connectionState').innerText = "Erfolgreich verbunden!";
+
+            mac = document.getElementById('macAddress').value;
+            document.getElementById('dialButton').disabled = false;
+        }
+    }
+
+    function acceptCall(callId, ip){
+        fetch("/phoneAPI/accept?callID=" + callId + "&ip=" + ip);
+    }
+
+    function declineCall(callId, ip){
+        fetch("/phoneAPI/decline?callID=" + callId + "&ip=" + ip);
+    }
+
+    function dialNumber(number){
+        fetch("/phoneAPI/dial?number=" + number + "&mac=" + mac).then(r => console.log(r));
+    }
+
+    // http://localhost:12345
+
+    socket.on('incoming', (msg) => {
+        console.log(msg);
+        var callData = document.getElementById('callData');
+        var name = "";
+        if(msg.name === ""){
+            name = msg.number;
+        }else{
+            name = msg.name;
+        }
+        callData.innerHTML = "<strong>Eingehender Anruf von: " + name + "</strong><br><button id='acceptButton' onclick='acceptCall(\"" + msg.callId + "\", \"" + msg.ip + "\");'>Annehmen</button> <button id='declineButton' onclick='declineCall(\"" + msg.callId + "\", \"" + msg.ip + "\");'>Ablehnen</button>";
+    })
+
+    socket.on('disconnected', (msg) => {
+        console.log(msg);
+        var callData = document.getElementById('callData');
+        callData.innerText = null;
+    })
+
+    socket.on('connected', (msg) => {
+        console.log(msg);
+        var declineButton = document.getElementById('declineButton');
+        declineButton.innerText = "Auflegen";
+
+        var acceptButton = document.getElementById('acceptButton');
+        if(acceptButton) {
+            acceptButton.remove();
+        }
+    })
+
+    socket.on('outgoing', (msg) => {
+        console.log(msg);
+        var callData = document.getElementById('callData');
+        var name = "";
+        if(msg.name === ""){
+            name = msg.number;
+        }else{
+            name = msg.name;
+        }
+        callData.innerHTML = "<strong>Ausgehender Anruf zu: " + name + "<button id='declineButton' onclick='declineCall(\"" + msg.callId + "\", \"" + msg.ip + "\");'>Abbrechen</button>";
+        var declineButton = document.getElementById('declineButton');
+        declineButton.innerText = "Auflegen";
+    })
+
+
+</script>

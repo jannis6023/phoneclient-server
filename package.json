@@ -1,0 +1,22 @@
+{
+  "name": "auerswaldcallsystem-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@electron/build-tools": "^1.0.4",
+    "easytimer.js": "^4.3.4",
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.1",
+    "nodemon": "^2.0.7",
+    "socket.io": "^4.1.2",
+    "xmlhttprequest": "^1.8.0"
+  }
+}
