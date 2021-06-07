@@ -1,4 +1,4 @@
-# CallSystem für Auerswald IP-Telefone
+# CallSystem für Auerswald IP-Telefone - Server
 Dies ist das Server-Repository des CallSystem für die Auerswald-Telefone Comfortel D100-D600!
 Das CallSystem bietet eine grundlegende Integration von PC und Telefon (CTI).
 
